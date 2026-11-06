@@ -1,6 +1,7 @@
 #include "savekit/binary_writer.hpp"
 #include <limits>
 #include <stdexcept>
+#include <bit>
 
 namespace savekit {
 

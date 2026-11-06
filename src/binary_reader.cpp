@@ -1,6 +1,7 @@
 #include "savekit/binary_reader.hpp"
 
 #include <stdexcept>
+#include <bit>
 
 namespace savekit {
 
