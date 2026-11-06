@@ -12,6 +12,7 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(savekit_tests
     test_smoke.cpp
+    test_binary_writer.cpp
     # Add one file per area as you go, e.g.:
     # test_roundtrip.cpp
     # test_header.cpp
