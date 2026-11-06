@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <span>
 #include <string>
+#include <vector>
 
 namespace savekit {
 
@@ -23,9 +24,26 @@ public:
     // Read one byte and move forward by 1.
     std::uint8_t read_u8();
 
+    // Read 2 bytes (little-endian) and move forward by 2. 34 12 -> 0x1234
+    std::uint16_t read_u16();
+
     // Read 4 bytes (little-endian) and move forward by 4.
     // E8 03 00 00 -> 1000
     std::uint32_t read_u32();
+
+    // Read 8 bytes (little-endian) and move forward by 8.
+    std::uint64_t read_u64();
+
+    // Read the raw bits written by write_f32 / write_f64 and turn them back into a float.
+    float read_f32();
+    double read_f64();
+
+    // Read a vector written by write_u16_vector: a u32 count, then that many u16s.
+    // The count comes from the file, so it can be a lie. Check it against
+    // remaining() BEFORE reserving or allocating anything, and be careful that
+    // count * 2 can't overflow (compare against remaining() / 2 instead).
+    // If it throws, the reader must be left where it started.
+    std::vector<std::uint16_t> read_u16_vector();
 
     // Read a string written by write_string: a u32 length, then that many bytes.
     // Throws std::out_of_range if the data ends early. The length comes from the
@@ -48,4 +66,4 @@ private:
     std::size_t pos_ = 0;  // index of the next byte to read
 };
 
-} // namespace savekit
+}
