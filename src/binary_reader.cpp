@@ -21,7 +21,7 @@ std::uint32_t BinaryReader::read_u32() {
     require(4);
     std::uint32_t result = 0;
     for (int i=0; i<4; i++) {
-        std::uint8_t byte = read_u8();
+        std::uint32_t byte = read_u8();
         result += byte << (8 * i);
     }
     return result;
