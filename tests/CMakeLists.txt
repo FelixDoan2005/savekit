@@ -18,6 +18,8 @@ add_executable(savekit_tests
     test_u16_u64.cpp
     test_floats.cpp
     test_vectors.cpp
+    test_crc32.cpp
+    test_file_format.cpp
     # Add one file per area as you go, e.g.:
     # test_roundtrip.cpp
     # test_header.cpp
