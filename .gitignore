@@ -1,0 +1,8 @@
+build/
+out/
+.cache/
+compile_commands.json
+*.bin
+!tests/data/*.bin
+.vscode/
+.vs/
