@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <span>
+#include <string>
 
 namespace savekit {
 
@@ -26,8 +27,18 @@ public:
     // E8 03 00 00 -> 1000
     std::uint32_t read_u32();
 
+    // Read a string written by write_string: a u32 length, then that many bytes.
+    // Throws std::out_of_range if the data ends early. The length comes from the
+    // file, so it can be a lie (e.g. 4 billion): check it against remaining()
+    // BEFORE allocating or copying anything.
+    // If it throws, the reader must be left where it started (nothing consumed).
+    std::string read_string();
+
     // How many bytes are left to read.
-    std::size_t remaining() const noexcept { return data_.size() - pos_; }
+    std::size_t remaining() const {
+        std::size_t n = data_.size();
+        return n - pos_;
+    }
 
 private:
     // Throws std::out_of_range unless at least `count` bytes remain.

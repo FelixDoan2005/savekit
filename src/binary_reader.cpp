@@ -27,4 +27,23 @@ std::uint32_t BinaryReader::read_u32() {
     return result;
 }
 
+std::string BinaryReader::read_string() {
+
+    std::size_t prev_pos_ = pos_;
+    std::uint32_t length = read_u32();
+
+    try {
+        require(length);
+    } catch (...) {
+        pos_ = prev_pos_;
+        throw;
+    }
+
+    std::string result;
+    for (std::size_t i=0; i<length; i++) {
+        result.push_back(static_cast<char>(read_u8()));
+    }
+    return result;
+}
+
 } // namespace savekit
