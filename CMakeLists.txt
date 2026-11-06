@@ -57,6 +57,8 @@ add_library(savekit
     src/version.cpp
     src/binary_writer.cpp
     src/binary_reader.cpp
+    src/crc32.cpp
+    src/file_format.cpp
     # Add your .cpp files here as you write them, e.g.:
     # src/crc32.cpp
 )
