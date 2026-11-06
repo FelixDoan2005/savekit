@@ -56,8 +56,8 @@ endif()
 add_library(savekit
     src/version.cpp
     src/binary_writer.cpp
+    src/binary_reader.cpp
     # Add your .cpp files here as you write them, e.g.:
-    # src/binary_reader.cpp
     # src/crc32.cpp
 )
 add_library(savekit::savekit ALIAS savekit)
