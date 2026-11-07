@@ -61,6 +61,7 @@ add_library(savekit
     src/file_format.cpp
     src/fields.cpp
     src/game_record.cpp
+    src/dump.cpp
     # Add your .cpp files here as you write them, e.g.:
     # src/crc32.cpp
 )
