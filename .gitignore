@@ -6,3 +6,6 @@ compile_commands.json
 !tests/data/*.bin
 .vscode/
 .vs/
+
+# sample files used by the README and the dump tool
+!examples/*.bin
