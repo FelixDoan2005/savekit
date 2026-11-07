@@ -132,16 +132,22 @@ while (r.next(f)) {
 
 At the lower level, `write_value(writer, x)` and `read_value<T>(reader)` work for `uint8/16/32/64_t`, `float`, `double`, `std::string` and `std::vector<T>` of any of those, including nested vectors.
 
-## Building
+## Getting started
 
-Requires CMake 3.20+ and a C++20 compiler (GCC, Clang or MSVC). GoogleTest is downloaded automatically.
+Requires Git, CMake 3.20+ and a C++20 compiler (GCC, Clang or MSVC). GoogleTest is downloaded automatically.
 
 ```sh
-cmake -S . -B build -G Ninja
+git clone https://github.com/FelixDoan2005/savekit.git
+cd savekit
+
+cmake -S . -B build -G Ninja      # leave out "-G Ninja" if you don't have Ninja
 cmake --build build
 ctest --test-dir build --output-on-failure
-./build/tools/savekit-dump examples/game_v2.bin
+
+./build/tools/savekit-dump examples/game_v2.bin    # build\tools\savekit-dump.exe on Windows
 ```
+
+If the tests pass and the last command prints the fields of the sample game, everything is working.
 
 | CMake option | Default | Meaning |
 |---|---|---|
