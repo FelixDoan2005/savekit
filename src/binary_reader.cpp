@@ -89,7 +89,7 @@ double BinaryReader::read_f64() {
 std::vector<std::uint16_t> BinaryReader::read_u16_vector() {
     std::size_t prev_pos_ = pos_;
     std::uint32_t length = read_u32();
-    if (length > remaining() / 2) {   // each number is 2 bytes. if the count is a lie go back and throw
+    if (length > remaining() / 2) {   // we knoiw each number is 2 bytes. if length>bytes/2 then it wont fit
         pos_= prev_pos_;
         throw std::out_of_range("BinaryReader: vector longer than data");
     }

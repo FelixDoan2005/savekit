@@ -4,21 +4,16 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <bit>
+#include <limits>
+#include <stdexcept>
+
 
 #include "savekit/binary_reader.hpp"
 #include "savekit/binary_writer.hpp"
 
 namespace savekit {
 
-// write_value and read_value replace write_u8 / write_u32 / ... and read_u8 / read_u32 / ...
-// one name for every type, the compiler picks the right code from the type you pass in
-//     write_value(w, std::uint32_t{1000});            // same bytes as w.write_u32(1000)
-//     std::string s = read_value<std::string>(r);
-//
-// supported: u8, u16, u32, u64, float, double, std::string, and std::vector<T> of any of those
-// a vector is a count (4 bytes) then each element written with write_value
-
-// is T a std::vector<something>? (already written, its boilerplate)
 template <typename T>
 struct is_vector : std::false_type {};
 
@@ -33,60 +28,81 @@ template <typename>
 inline constexpr bool always_false_v = false;
 
 template <typename T>
-void write_value([[maybe_unused]] BinaryWriter& w, [[maybe_unused]] const T& value) {
+void write_value(BinaryWriter& w,  const T& value) {
     if constexpr (std::is_same_v<T, std::uint8_t>) {
-        // TODO: w.write_u8(value);
+        w.write_u8(value);       // T is a u8, so call the u8 writer
     } else if constexpr (std::is_same_v<T, std::uint16_t>) {
-        // TODO
+        w.write_u16(value);
     } else if constexpr (std::is_same_v<T, std::uint32_t>) {
-        // TODO
+        w.write_u32(value);
     } else if constexpr (std::is_same_v<T, std::uint64_t>) {
-        // TODO
+        w.write_u64(value);
     } else if constexpr (std::is_same_v<T, float>) {
-        // TODO
+        w.write_u32(std::bit_cast<std::uint32_t>(value));
     } else if constexpr (std::is_same_v<T, double>) {
-        // TODO
+        w.write_u64(std::bit_cast<std::uint64_t>(value));
     } else if constexpr (std::is_same_v<T, std::string>) {
-        // TODO
+        w.write_string(value);
     } else if constexpr (is_vector_v<T>) {
-        // TODO: 1. if value.size() doesn't fit in a std::uint32_t, throw std::length_error
-        //       2. w.write_u32(the count)
-        //       3. for (const auto& item : value) write_value(w, item);   <- calls itself!
+        const std::uint32_t max_len = std::numeric_limits<std::uint32_t>::max();
+        if (value.size() > max_len) {   // count has to fit in 4 bytes
+            throw std::length_error("BinaryWriter: vector too long");
+        }
+        w.write_u32(static_cast<std::uint32_t>(value.size()));
+
+        for (std::size_t i = 0; i < value.size(); i++) {
+            write_value(w, value[i]);  
+        }
     } else {
         static_assert(always_false_v<T>, "savekit: write_value does not support this type");
     }
 }
 
 template <typename T>
-T read_value([[maybe_unused]] BinaryReader& r) {
+T read_value(BinaryReader& r) {
     if constexpr (std::is_same_v<T, std::uint8_t>) {
-        // TODO: return r.read_u8();
+        return r.read_u8();
     } else if constexpr (std::is_same_v<T, std::uint16_t>) {
-        // TODO
+        return r.read_u16();
     } else if constexpr (std::is_same_v<T, std::uint32_t>) {
-        // TODO
+        return r.read_u32();
     } else if constexpr (std::is_same_v<T, std::uint64_t>) {
-        // TODO
+        return r.read_u64();
     } else if constexpr (std::is_same_v<T, float>) {
-        // TODO
+        return r.read_f32();
     } else if constexpr (std::is_same_v<T, double>) {
-        // TODO
+        return r.read_f64();
     } else if constexpr (std::is_same_v<T, std::string>) {
-        // TODO
+        return r.read_string();
     } else if constexpr (is_vector_v<T>) {
-        // TODO: using Item = typename T::value_type;
-        //       1. remember r.position()
-        //       2. count = r.read_u32()
-        //       3. every element takes at least 1 byte, so if count > r.remaining() the count is a lie:
-        //          r.set_position(start) and throw std::out_of_range. Do this BEFORE reserve() or a loop.
-        //       4. T result; result.reserve(count); then count times: result.push_back(read_value<Item>(r))
-        //          If an element read throws, put the position back (try / catch (...) { set_position; throw; }).
-        //       5. return result;
+        std::size_t prev_pos_ = r.position();       // remember where we started
+        std::uint32_t length = r.read_u32();
+        if (length > r.remaining()) {   // every item takes at least 1 byte. if the count is a lie go back and throw
+            r.set_position(prev_pos_);
+            throw std::out_of_range("BinaryReader: vector longer than data");
+        }
+        T result;
+        using Item = typename T::value_type;
+        // typename tells compiler its a type
+        // T::value_type means look inside T and get the type e.g read_value<std::vector<float>>(r)
+        //                                                        T is std::vector<float>
+        //                                                        T::value_type looks inside and gets float
+        //                                                        so put it T::value_type into the <> for read_value call
+        result.reserve(length);
+        try {
+            for (std::size_t i=0; i<length; i++) {
+                result.push_back(read_value<Item>(r));
+            }
+        } catch (...) {
+            r.set_position(prev_pos_);   // an item failed halfway, go back to the start
+            throw;
+        }
+
+        return result;
+
     } else {
         static_assert(always_false_v<T>, "savekit: read_value does not support this type");
     }
-
-    return T{};   // TODO: delete this line once every branch above returns its own value
 }
 
 }

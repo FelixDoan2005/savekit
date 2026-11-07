@@ -35,7 +35,10 @@ public:
     }
 
     // where we are now, and a way to go back. used when a read fails halfway
-    std::size_t position() const noexcept { return pos_; }
+    std::size_t position() const noexcept { 
+        return pos_; 
+    }
+    
     void set_position(std::size_t pos) {
         if (pos > data_.size()) {
             throw std::out_of_range("BinaryReader: position past the end");

@@ -8,7 +8,7 @@
 
 namespace savekit {
 
-//reminder - payload = your actual data (the bytes you want to save) without the header
+//reminder - payload = actual data (the bytes you want to save) without the header
 //file = header (magic, version, size, crc) + payload
 
 // puts the 15 byte header in front of the payload and returns the whole file as bytes
