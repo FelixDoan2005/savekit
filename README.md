@@ -58,7 +58,7 @@ A file is a 15-byte header followed by the payload. All numbers are little-endia
  | "GRACE" | ver   | size    | crc32   | payload ...           |
  | 5 bytes | u16   | u32     | u32     | `size` bytes          |
  +---------+-------+---------+---------+-----------------------+
- |<------------ header (15 bytes) ---->|
+ |<-------- header (15 bytes) -------->|
 ```
 
 | Field | Size | Purpose |
